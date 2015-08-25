@@ -1,0 +1,9 @@
+
+Subject	Catalog	Section	Component	Class Title	Start Time	End Time	Meeting Days	Start Date	End Date	Room
+DMIT	1508	A04	LLB	Database Fundamentals	1:15 PM	3:15 PM	Tu	9/8/2015	12/18/2015	WA302
+DMIT	1508	A04	LLB	Database Fundamentals	1:15 PM	3:15 PM	Fr	9/8/2015	12/18/2015	WA322
+DMIT	1508	A04	LLB	Database Fundamentals	1:15 PM	3:15 PM	Th	9/8/2015	12/18/2015	WB304
+DMIT	1508	A05	LLB	Database Fundamentals	11:15 AM	1:15 PM	We	9/8/2015	12/18/2015	WA322
+DMIT	1508	A05	LLB	Database Fundamentals	10:15 AM	12:15 PM	Tu	9/8/2015	12/18/2015	WB308
+DMIT	1508	A05	LLB	Database Fundamentals	10:15 AM	12:15 PM	Mo	9/8/2015	12/18/2015	WC306
+DMIT	2018	A02	LLB	Intermediate Application Dev.	3:15 PM	5:15 PM	MoTuTh	9/8/2015	12/18/2015	WA320
