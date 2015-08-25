@@ -1,8 +1,11 @@
 ﻿@using System.Web.WebPages;
 @using InstructorCalendar;
+
 @{
+    Layout = "_Layout.cshtml";
     string schedule = "";
-    string[] lines = {};
+    string json = "";
+    string[] lines = { };
     List<Course> courses = new List<Course>();
     List<ScheduledCourse> output = new List<ScheduledCourse>();
 
@@ -20,7 +23,7 @@
             {
                 headings[index] = headings[index].Replace(" ", "");
             }
-            
+
             // Create a Course object graph for each line
             Dictionary<string, string> lineDetails;
             for (int row = 1; row < lines.Length; row++)
@@ -53,31 +56,31 @@
                 var endTime = DateTime.ParseExact(time, "hh:mm tt", System.Globalization.CultureInfo.InvariantCulture).TimeOfDay;
                 List<DayOfWeek> meetingDays = new List<DayOfWeek>();
                 string days = lineDetails["MeetingDays"];
-                if(days.Contains("Mo"))
+                if (days.Contains("Mo"))
                 {
                     meetingDays.Add(DayOfWeek.Monday);
                 }
-                if(days.Contains("Tu"))
+                if (days.Contains("Tu"))
                 {
                     meetingDays.Add(DayOfWeek.Tuesday);
                 }
-                if(days.Contains("We"))
+                if (days.Contains("We"))
                 {
                     meetingDays.Add(DayOfWeek.Wednesday);
                 }
-                if(days.Contains("Th"))
+                if (days.Contains("Th"))
                 {
                     meetingDays.Add(DayOfWeek.Thursday);
                 }
-                if(days.Contains("Fr"))
+                if (days.Contains("Fr"))
                 {
                     meetingDays.Add(DayOfWeek.Friday);
                 }
-                if(days.Contains("Sa"))
+                if (days.Contains("Sa"))
                 {
                     meetingDays.Add(DayOfWeek.Saturday);
                 }
-                if(days.Contains("Su"))
+                if (days.Contains("Su"))
                 {
                     meetingDays.Add(DayOfWeek.Sunday);
                 }
@@ -88,7 +91,7 @@
 
                 courses.Add(course);
             }
-            
+
             // Consolodate the list of courses into a single Calendar graph
             var weekSchedule = from course in courses
                                from offering in course.Offerings
@@ -105,41 +108,92 @@
                                };
             weekSchedule = weekSchedule.OrderBy(s => s.MeetingDay);
             output = weekSchedule.ToList();
+            DateTime startOfWeek = DateTime.Today.AddDays(-1 * (int)(DateTime.Today.DayOfWeek));
+            var events = from item in output
+                         select new
+                         {
+                             title = item.CourseNumber + " - " + item.Section + " - " + item.RoomNumber,
+                             start = startOfWeek.AddDays((int)item.MeetingDay).Add(item.Start).ToString(),
+                             end = startOfWeek.AddDays((int)item.MeetingDay).Add(item.End).ToString(),
+                         };
+            System.Web.Script.Serialization.JavaScriptSerializer js = new System.Web.Script.Serialization.JavaScriptSerializer();
+            json = js.Serialize(events.ToArray());
         }
     }
-        
+
 }
 
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Instructor Calendar</h1>
 
-<!DOCTYPE html>
-<html>
-    <head>
-        <title></title>
-    </head>
-<body>
-    <h1>Instructor Calendar</h1>
-
-    <form method="post">
-        <label>Instructor Schedule (From Student Administration):</label>
-        <br />
-        <textarea name="schedule" cols="250" rows="15" value="@schedule"></textarea>
-        <br />
-        <button type="submit">Parse Schedule</button>
-    </form>
-    <hr />
+            <form method="post">
+                <label>Instructor Schedule (From Student Administration):</label>
+                <br />
+                <textarea name="schedule" cols="250" rows="15">@schedule</textarea>
+                <br />
+                <button type="submit">Parse Schedule</button>
+            </form>
+            <hr />
 <pre>
-    @foreach (var line in lines)
-    {
-        @line
-    }
+@foreach (var line in lines)
+{
+    @line
+            <br />
+}
 </pre>
-    <hr />
-    @foreach (var item in output)
-    {
-        
-    }
-</body>
+            <hr />
+            @if (IsPost)
+            {
+                <div ng-app="App">
+                    <script>
+                        var eventData = JSON.parse('@Html.Raw(json)');
+                        console.log(eventData);
+                        var app = angular.module('App', ['ui.calendar']);
+                        app.controller('MyDataController', function ($scope) {
+                            function reparsefunction() {
+                                var events = [];
+                                for (var i = 0; i < eventData.length; i++) {
+                                    var startDate = new Date(eventData[i].start);
+                                    var endDate = new Date(eventData[i].end);
+                                    events.push({
+                                        title: eventData[i].title,
+                                        start: startDate,
+                                        end: endDate
+                                    });
+                                }
+                                return events;
+                            };
+                            $scope.eventInfo = [reparsefunction()];
+                            $scope.uiConfig = {
+                                calendar: {
+                                    defaultView: 'agendaWeek',
+                                    views: {
+                                        agenda: {
+                                            minTime: "08:00:00",
+                                            maxTime: "18:00:00"
+                                        }
+                                    },
+                                    editable: false,
+                                    height: 570,
+                                    editable: true,
+                                    header:{
+                                        //left: 'agendaWeek',
+                                        left: 'month basicWeek basicDay agendaWeek agendaDay',
+                                        center: 'title',
+                                        right: 'today prev,next'
+                                    }
+                                }
+                            };
+                        });
 
-
-
-</html>
+                    </script>
+                    <div ng-controller="MyDataController">
+                        <div ui-calendar="uiConfig.calendar" ng-model="eventInfo" calendar="myCalendar"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
