@@ -189,13 +189,16 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Course.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspNetIdentity.WebApi\AspNetIdentity.WebApi.csproj">
       <Project>{fe46f959-09b9-4182-9aec-e66364efc1ac}</Project>
       <Name>AspNetIdentity.WebApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InstructorCalendar.DataStore\InstructorCalendar.DataStore.csproj">
+      <Project>{639317dc-c605-4800-af4c-92df5c5c8a7d}</Project>
+      <Name>InstructorCalendar.DataStore</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

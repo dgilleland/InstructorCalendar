@@ -1,145 +1,34 @@
 ﻿@using System.Web.WebPages;
 @using InstructorCalendar;
+@using InstructorCalendar.DataStore.CommandModels;
+@using InstructorCalendar.DataStore.QueryModels;
 
 @{
     Layout = "_Layout.cshtml";
     string schedule = "";
     string json = "";
     string[] lines = { };
-    List<Course> courses = new List<Course>();
+    List<CourseData> courses = new List<CourseData>();
     List<ScheduledCourse> output = new List<ScheduledCourse>();
 
     if (IsPost)
     {
         schedule = Request["schedule"];
-        string[] lineDelimiters = { Environment.NewLine };
-        char tabDelimiter = '\t';
-        lines = schedule.Split(lineDelimiters, StringSplitOptions.RemoveEmptyEntries);
-        if (lines.Length > 0)
-        {
-            // Turn headings into keys for line details
-            string[] headings = lines[0].Split(tabDelimiter);
-            for (int index = 0; index < headings.Length; index++)
-            {
-                headings[index] = headings[index].Replace(" ", "");
-            }
+        courses = InstructorCalendar.DataStore.CalendarRepository.Create().ParseInstructorSchedule(schedule);
 
-            // Create a Course object graph for each line
-            Dictionary<string, string> lineDetails;
-            for (int row = 1; row < lines.Length; row++)
-            {
-                lineDetails = new Dictionary<string, string>();
-                string[] details = lines[row].Split(tabDelimiter);
-                for (int col = 0; col < headings.Length; col++)
-                {
-                    lineDetails.Add(headings[col], details[col]);
-                }
-                Course course = new Course()
-                {
-                    ClassTitle = lineDetails["ClassTitle"],
-                    Catalog = lineDetails["Catalog"],
-                    Subject = lineDetails["Subject"]
-                };
-                course.Offerings.Add(new CourseOffering() { Section = lineDetails["Section"] });
-                string time;
-                time = lineDetails["StartTime"].ToLower();
-                if (time.Length == 7)
-                {
-                    time = "0" + time;
-                }
-                var startTime = DateTime.ParseExact(time, "hh:mm tt", System.Globalization.CultureInfo.InvariantCulture).TimeOfDay;
-                time = lineDetails["EndTime"].ToLower();
-                if (time.Length == 7)
-                {
-                    time = "0" + time;
-                }
-                var endTime = DateTime.ParseExact(time, "hh:mm tt", System.Globalization.CultureInfo.InvariantCulture).TimeOfDay;
-                List<DayOfWeek> meetingDays = new List<DayOfWeek>();
-                string days = lineDetails["MeetingDays"];
-                if (days.Contains("Mo"))
-                {
-                    meetingDays.Add(DayOfWeek.Monday);
-                }
-                if (days.Contains("Tu"))
-                {
-                    meetingDays.Add(DayOfWeek.Tuesday);
-                }
-                if (days.Contains("We"))
-                {
-                    meetingDays.Add(DayOfWeek.Wednesday);
-                }
-                if (days.Contains("Th"))
-                {
-                    meetingDays.Add(DayOfWeek.Thursday);
-                }
-                if (days.Contains("Fr"))
-                {
-                    meetingDays.Add(DayOfWeek.Friday);
-                }
-                if (days.Contains("Sa"))
-                {
-                    meetingDays.Add(DayOfWeek.Saturday);
-                }
-                if (days.Contains("Su"))
-                {
-                    meetingDays.Add(DayOfWeek.Sunday);
-                }
-                foreach (var day in meetingDays)
-                {
-                    course.Offerings[0].Rooms.Add(new ScheduledRoom() { StartTime = startTime, EndTime = endTime, MeetingDay = day, Room = lineDetails["Room"] });
-                }
+        output = InstructorCalendar.DataStore.CalendarRepository.Create().GenerateCalendarGraph(courses);
 
-                if (courses.Any(x=>x.Catalog == course.Catalog && x.Subject == course.Subject))
-                {
-                    var existing = courses.First(x => x.Catalog == course.Catalog && x.Subject == course.Subject);
-                    if (existing.Offerings.Any(x=>x.Section == course.Offerings[0].Section))
-                    {
-                        var offering = existing.Offerings.First(x => x.Section == course.Offerings[0].Section);
-                        foreach(var item in course.Offerings[0].Rooms)
+        DateTime startOfWeek = DateTime.Today.AddDays(-1 * (int)(DateTime.Today.DayOfWeek));
+        var events = from item in output
+                        select new
                         {
-                            offering.Rooms.Add(item);
-                        }
-                    }
-                    else
-                    {
-                        existing.Offerings.Add(course.Offerings[0]);
-                    }
-                }
-                else
-                {
-                    courses.Add(course);
-                }
-            }
-
-            // Consolodate the list of courses into a single Calendar graph
-            var weekSchedule = from course in courses
-                               from offering in course.Offerings
-                               from room in offering.Rooms
-                               select new ScheduledCourse()
-                               {
-                                   MeetingDay = room.MeetingDay,
-                                   Start = room.StartTime,
-                                   End = room.EndTime,
-                                   RoomNumber = room.Room,
-                                   CourseNumber = course.Subject + course.Catalog,
-                                   CourseTitle = course.ClassTitle,
-                                   Section = offering.Section
-                               };
-            weekSchedule = weekSchedule.OrderBy(s => s.MeetingDay);
-            output = weekSchedule.ToList();
-            DateTime startOfWeek = DateTime.Today.AddDays(-1 * (int)(DateTime.Today.DayOfWeek));
-            var events = from item in output
-                         select new
-                         {
-                             title = item.CourseNumber + " - " + item.Section + " - " + item.RoomNumber,
-                             start = startOfWeek.AddDays((int)item.MeetingDay).Add(item.Start).ToString(),
-                             end = startOfWeek.AddDays((int)item.MeetingDay).Add(item.End).ToString(),
-                         };
-            System.Web.Script.Serialization.JavaScriptSerializer js = new System.Web.Script.Serialization.JavaScriptSerializer();
-            json = js.Serialize(events.ToArray());
-        }
+                            title = item.CourseNumber + " - " + item.Section + " - " + item.RoomNumber,
+                            start = startOfWeek.AddDays((int)item.MeetingDay).Add(item.Start).ToString(),
+                            end = startOfWeek.AddDays((int)item.MeetingDay).Add(item.End).ToString(),
+                        };
+        System.Web.Script.Serialization.JavaScriptSerializer js = new System.Web.Script.Serialization.JavaScriptSerializer();
+        json = js.Serialize(events.ToArray());
     }
-
 }
 
 <div class="container">
