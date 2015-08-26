@@ -150,18 +150,10 @@
             <form method="post">
                 <label>Instructor Schedule (From Student Administration):</label>
                 <br />
-                <textarea name="schedule" cols="250" rows="15">@schedule</textarea>
+                <textarea name="schedule" class="form-control" rows="15">@schedule</textarea>
                 <br />
                 <button type="submit">Parse Schedule</button>
             </form>
-            <hr />
-<pre>
-@foreach (var line in lines)
-{
-    @line
-            <br />
-}
-</pre>
             <hr />
             @if (IsPost)
             {
