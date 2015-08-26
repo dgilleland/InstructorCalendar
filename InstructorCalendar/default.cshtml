@@ -89,7 +89,26 @@
                     course.Offerings[0].Rooms.Add(new ScheduledRoom() { StartTime = startTime, EndTime = endTime, MeetingDay = day, Room = lineDetails["Room"] });
                 }
 
-                courses.Add(course);
+                if (courses.Any(x=>x.Catalog == course.Catalog && x.Subject == course.Subject))
+                {
+                    var existing = courses.First(x => x.Catalog == course.Catalog && x.Subject == course.Subject);
+                    if (existing.Offerings.Any(x=>x.Section == course.Offerings[0].Section))
+                    {
+                        var offering = existing.Offerings.First(x => x.Section == course.Offerings[0].Section);
+                        foreach(var item in course.Offerings[0].Rooms)
+                        {
+                            offering.Rooms.Add(item);
+                        }
+                    }
+                    else
+                    {
+                        existing.Offerings.Add(course.Offerings[0]);
+                    }
+                }
+                else
+                {
+                    courses.Add(course);
+                }
             }
 
             // Consolodate the list of courses into a single Calendar graph
