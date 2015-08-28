@@ -1,0 +1,8 @@
+Subject	Catalog	Section	Component	Class Title	Start Time	End Time	Meeting Days	Start Date	End Date	Room
+CPSC	1517	A01	LLB	Intro to App Development	8:15 AM	10:15 AM	MoWe	1/6/2016	4/22/2016	WB308
+CPSC	1517	A01	LLB	Intro to App Development	1:15 PM	3:15 PM	Th	1/6/2016	4/22/2016	WB320
+DMIT	1508	A05	LLB	Database Fundamentals	10:15 AM	12:15 PM	MoWe	1/6/2016	4/22/2016	WA322
+DMIT	1508	A05	LLB	Database Fundamentals	1:15 PM	3:15 PM	Tu	1/6/2016	4/22/2016	WA322
+DMIT	2504	A02	LLB	Android Development	1:15 PM	3:15 PM	Mo	1/6/2016	4/22/2016	WA322
+DMIT	2504	A02	LLB	Android Development	8:15 AM	10:15 AM	Tu	1/6/2016	4/22/2016	WB304
+DMIT	2504	A02	LLB	Android Development	2:15 PM	4:15 PM	Fr	1/6/2016	4/22/2016	WB308
