@@ -13,5 +13,6 @@ namespace InstructorCalendar.DataStore.QueryModels
         public string CourseNumber { get; set; }
         public string CourseTitle { get; set; }
         public string Section { get; set; }
+        public string BackgroundColor { get; set; }
     }
 }

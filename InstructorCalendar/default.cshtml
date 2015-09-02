@@ -6,6 +6,11 @@
 @{
     Layout = "_Layout.cshtml";
     string schedule = "";
+    string calTitle = Request["calTitle"];
+    if (string.IsNullOrWhiteSpace(calTitle))
+    {
+        calTitle = "";
+    }
     string json = "";
     string[] lines = { };
     List<CourseData> courses = new List<CourseData>();
@@ -25,6 +30,7 @@
                             title = item.CourseNumber + " - " + item.Section + " - " + item.RoomNumber,
                             start = startOfWeek.AddDays((int)item.MeetingDay).Add(item.Start).ToString(),
                             end = startOfWeek.AddDays((int)item.MeetingDay).Add(item.End).ToString(),
+                            backgroundColor = item.BackgroundColor
                         };
         System.Web.Script.Serialization.JavaScriptSerializer js = new System.Web.Script.Serialization.JavaScriptSerializer();
         json = js.Serialize(events.ToArray());
@@ -38,8 +44,9 @@
 
             <form method="post">
                 <label>Instructor Schedule (From Student Administration):</label>
+                <input type="text" class="form-control" placeholder="Title for Calendar" name="calTitle" value="@calTitle" />
                 <br />
-                <textarea name="schedule" class="form-control" rows="15">@schedule</textarea>
+                <textarea name="schedule" class="form-control" rows="15" placeholder="Tested only in Chrome. Paste your schedule here.">@schedule</textarea>
                 <br />
                 <button type="submit">Parse Schedule</button>
             </form>
@@ -60,7 +67,9 @@
                                     events.push({
                                         title: eventData[i].title,
                                         start: startDate,
-                                        end: endDate
+                                        end: endDate,
+                                        backgroundColor: eventData[i].backgroundColor,
+                                        textColor: 'black'
                                     });
                                 }
                                 return events;
@@ -69,6 +78,13 @@
                             $scope.uiConfig = {
                                 calendar: {
                                     defaultView: 'agendaWeek',
+                                    weekends: false,
+                                    header: {
+                                        left: '',
+                                        center: 'title',
+                                        right: ''
+                                    },
+                                    titleFormat: '[@calTitle]',
                                     views: {
                                         agenda: {
                                             minTime: "08:00:00",
@@ -78,12 +94,12 @@
                                     editable: false,
                                     height: 770,
                                     editable: true,
-                                    header:{
-                                        //left: 'agendaWeek',
-                                        left: 'month basicWeek basicDay agendaWeek agendaDay',
-                                        center: 'title',
-                                        right: 'today prev,next'
-                                    }
+                                    //header:{
+                                    //    //left: 'agendaWeek',
+                                    //    left: 'month basicWeek basicDay agendaWeek agendaDay',
+                                    //    center: 'title',
+                                    //    right: 'today prev,next'
+                                    //}
                                 }
                             };
                         });

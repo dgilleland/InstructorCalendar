@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="CalendarContext.cs" />
     <Compile Include="CalendarRepository.cs" />
+    <Compile Include="CommandModels\CourseColors.cs" />
     <Compile Include="CommandModels\CourseData.cs" />
     <Compile Include="CommandModels\CourseOfferingData.cs" />
     <Compile Include="CommandModels\ScheduledRoomData.cs" />

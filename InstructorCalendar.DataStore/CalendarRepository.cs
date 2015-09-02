@@ -33,6 +33,7 @@ namespace InstructorCalendar.DataStore
                 }
 
                 // Create a Course object graph for each line
+                int color = 0;
                 Dictionary<string, string> lineDetails;
                 for (int row = 1; row < lines.Length; row++)
                 {
@@ -110,11 +111,15 @@ namespace InstructorCalendar.DataStore
                         }
                         else
                         {
+                            course.Offerings[0].BackgroundColor = CourseColors.Colors()[color];
+                            color++;
                             existing.Offerings.Add(course.Offerings[0]);
                         }
                     }
                     else
                     {
+                        course.Offerings[0].BackgroundColor = CourseColors.Colors()[color];
+                        color++;
                         courses.Add(course);
                     }
                 }
@@ -147,7 +152,8 @@ namespace InstructorCalendar.DataStore
                                    RoomNumber = room.Room,
                                    CourseNumber = course.Subject + course.Catalog,
                                    CourseTitle = course.ClassTitle,
-                                   Section = offering.Section
+                                   Section = offering.Section,
+                                   BackgroundColor = offering.BackgroundColor
                                };
             weekSchedule = weekSchedule.OrderBy(s => s.MeetingDay);
             output = weekSchedule.ToList();
